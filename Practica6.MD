@@ -1,4 +1,4 @@
-# PRACTICA 5 :  Buses de comunicación II (SPI)  
+# PRACTICA 6 :  Buses de comunicación II (SPI)  
 
 El objetivo de la practica es comprender el funcionamiento del bus spi 
 
@@ -319,33 +319,65 @@ void loop() {
 ```
 
 
-1. Descibir la salida por el puerto serie 
-2. Explicar el funcionamiento 
-
-## Ejercicio Practico 3
-
-A realizar  como ejercicio  en casa 
+## Codigo
 
 
----------------------------------------------------------------------
+#include <Arduino.h>
+#include <SPI.h>
+#include <SD.h>
 
- ***Para la realizacion de este ejercicio pueden utilizar  cualquier 
- elemento spi que tengan disponible*** .
- 
- Necesario presentar en el informe y subirlo al github 
- 
- 1. fotos del montaje 
- 2. salidas de depuracion ( print...) 
- 3. codigo generado 
- 4. explicación del codigo 
- 
- 
+// Definir pines para SPI
+#define SD_MOSI 11
+#define SD_MISO 12
+#define SD_SCK 13
+#define SD_CS 4
 
-## Ejercicio de subida de nota  ( muy valorado) 
+void listFiles(File dir, int numTabs);
 
-* Parte  1.- Realizar utilizando el sd  y el lector rfid escribiendo en un fichero.log  la hora y codigo de cada lectura ( describir como se resuelve el hardware
-para utilizar un spi para dos perifericos) .
-* Parte  2.- Generar una pagina web donde se pueda ver la lectura del lector rfid
+void setup() {
+    Serial.begin(115200);
+    
+    // Configurar bus SPI
+    SPI.begin(SD_SCK, SD_MISO, SD_MOSI, SD_CS);
+    
+    if (!SD.begin(SD_CS)) {
+        Serial.println("Error al inicializar la tarjeta SD");
+        return;
+    }
+    Serial.println("Tarjeta SD inicializada correctamente");
+    
+    File root = SD.open("/");
+    Serial.println("Contenido de la tarjeta SD:");
+    listFiles(root, 0);
+}
+
+void loop() {
+    // No es necesario código en loop para solo listar archivos
+}
+
+void listFiles(File dir, int numTabs) {
+    while (true) {
+        File entry = dir.openNextFile();
+        if (!entry) {
+            break;
+        }
+        for (int i = 0; i < numTabs; i++) {
+            Serial.print("\t");
+        }
+        Serial.print(entry.name());
+        if (entry.isDirectory()) {
+            Serial.println("/");
+            listFiles(entry, numTabs + 1);
+        } else {
+            Serial.print(" \tTamaño: ");
+            Serial.println(entry.size());
+        }
+        entry.close();
+    }
+}
+
+
+
 
 
  
